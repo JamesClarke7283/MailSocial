@@ -35,5 +35,6 @@ local_scheme = "node-and-timestamp"
 [project.optional-dependencies]
 dev = [
     "gitpython",
-    "PyGithub"
+    "PyGithub",
+    "python-gnupg"
 ]
