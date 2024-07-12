@@ -85,7 +85,9 @@ jobs:
           release_tag="nightly"
         fi
 
-        if ! gh release view "$release_tag" &>/dev/null; then
+        if gh release view "$release_tag" &>/dev/null; then
+          echo "Release $release_tag already exists."
+        else
           gh release create "$release_tag" --title "Release $release_tag" --notes "Placeholder for release notes" --prerelease
         fi
 
