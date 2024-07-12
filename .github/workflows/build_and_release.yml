@@ -162,6 +162,7 @@ jobs:
           git config user.email github-actions@github.com
           git tag -f nightly
           git push origin nightly -f
+      shell: bash
 
   cleanup:
     runs-on: ubuntu-latest
