@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "mailsocial"
 description = "An email client with social media and instant messaging features."
 readme = "README.md"
-license = { file = "LICENSE.md" }
+license = {"text"="GPL-3.0-or-later"}
 authors = [
     { name = "James David Clarke", email = "james@jamesdavidclarke.com" }
 ]
@@ -17,11 +17,23 @@ dependencies = [
     "appdirs",
     "python-dotenv"
 ]
+
 dynamic = ["version"]
 
 [project.scripts]
 mailsocial = "src.app:main"
 
+[project.urls]
+homepage = "https://github.com/JamesClarke7283/MailSocial"
+source = "https://github.com/JamesClarke7283/MailSocial"
+tracker = "https://github.com/JamesClarke7283/MailSocial/issues"
+
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"
 local_scheme = "node-and-timestamp"
+
+[project.optional-dependencies]
+dev = [
+    "gitpython",
+    "PyGithub"
+]
