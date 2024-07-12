@@ -1,3 +1,5 @@
+Copyright (C) 2024 James David Clarke <james@jamesdavidclarke.com>
+
 # GNU GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007
