@@ -1,7 +1,8 @@
+# src/core/contributions.py
 import os
 import json
 import uuid
-import logging
+from src.core.logging import logger, TRACE
 import gnupg
 import tempfile
 from git import Repo, GitCommandError
@@ -17,24 +18,12 @@ from datetime import datetime
 # Load environment variables
 load_dotenv()
 
-# Set up logging
-TRACE = 5
-logging.addLevelName(TRACE, "TRACE")
-
-def trace(self, message, *args, **kws):
-    if self.isEnabledFor(TRACE):
-        self._log(TRACE, message, args, **kws)
-
-logging.Logger.trace = trace
-
-logging.basicConfig(level=TRACE)  # Set the desired logging level
-
 # Initialize GPG
 gpg = gnupg.GPG()
 
 GITHUB_API_KEY = os.getenv('GITHUB_API_KEY')
 if not GITHUB_API_KEY:
-    logging.error("GITHUB_API_KEY not set in environment variables")
+    logger.error("GITHUB_API_KEY not set in environment variables")
 
 def get_commit_info(commit):
     """Extract relevant information from a commit object."""
@@ -58,7 +47,7 @@ def get_repo_url():
                 return url.strip()
         raise ValueError("Source URL not found in project metadata")
     except Exception as e:
-        logging.error(f"Error retrieving repository URL from metadata: {e}")
+        logger.error(f"Error retrieving repository URL from metadata: {e}")
         return None
 
 def get_repo_path():
@@ -70,12 +59,12 @@ def get_repo_path():
 def clone_or_pull_repo(repo_url, repo_path):
     """Clone the repository if it doesn't exist, or pull if it does."""
     if os.path.exists(repo_path):
-        logging.info("Repository already exists. Pulling latest changes...")
+        logger.info("Repository already exists. Pulling latest changes...")
         repo = Repo(repo_path)
         origin = repo.remotes.origin
         origin.pull()
     else:
-        logging.info("Cloning repository...")
+        logger.info("Cloning repository...")
         os.makedirs(os.path.dirname(repo_path), exist_ok=True)
         Repo.clone_from(repo_url, repo_path)
     return Repo(repo_path)
@@ -88,12 +77,12 @@ def extract_signature_details(commit_sha, repo_path):
         result = subprocess.run(command, cwd=repo_path, capture_output=True, text=True)
 
         if result.returncode != 0:
-            logging.error(f"Git command failed with error: {result.stderr}")
+            logger.error(f"Git command failed with error: {result.stderr}")
             return None
 
         # Parse the output to extract signature details
         output = result.stdout
-        logging.debug(f"Git command output:\n{output}")
+        logger.debug(f"Git command output:\n{output}")
 
         commit_info = {}
         commit_info["commit"] = commit_sha
@@ -105,7 +94,7 @@ def extract_signature_details(commit_sha, repo_path):
             commit_info["key_type"] = signature_match.group(2).strip()
             commit_info["key_id"] = signature_match.group(3).strip()
         else:
-            logging.error("GPG signature details not found.")
+            logger.error("GPG signature details not found.")
             return None
 
         # Extract author information
@@ -119,10 +108,10 @@ def extract_signature_details(commit_sha, repo_path):
 
         # Convert the commit info to JSON
         commit_info_json = json.dumps(commit_info, indent=4)
-        logging.info(f"Commit Info JSON:\n{commit_info_json}")
+        logger.info(f"Commit Info JSON:\n{commit_info_json}")
         return commit_info
     except Exception as e:
-        logging.error(f"Error extracting signature details: {e}")
+        logger.error(f"Error extracting signature details: {e}")
         return None
 
 def compare_with_keyserver(key_id, emails):
@@ -138,14 +127,14 @@ def compare_with_keyserver(key_id, emails):
             email_match = re.search(r'<([^>]+)>', uid)
             if email_match:
                 key_emails.append(email_match.group(1).strip())
-        logging.info(f"Emails from key server: {key_emails}")
+        logger.info(f"Emails from key server: {key_emails}")
 
         # Compare the emails
         emails_match = set(emails) == set(key_emails)
-        logging.info(f"Emails match: {emails_match}")
+        logger.info(f"Emails match: {emails_match}")
         return emails_match
     except Exception as e:
-        logging.error(f"Error comparing with keyserver: {e}")
+        logger.error(f"Error comparing with keyserver: {e}")
         return False
 
 def verify_pgp_signature(commit, repo_path):
@@ -158,16 +147,16 @@ def verify_pgp_signature(commit, repo_path):
 
             emails_match = compare_with_keyserver(commit_info["key_id"], commit_info["emails"])
             if emails_match:
-                logging.info(f"Emails match for PGP key ID: {commit_info['key_id']}")
+                logger.info(f"Emails match for PGP key ID: {commit_info['key_id']}")
             else:
-                logging.warning(f"Emails do not match for PGP key ID: {commit_info['key_id']}")
+                logger.warning(f"Emails do not match for PGP key ID: {commit_info['key_id']}")
 
             return commit_info["key_id"] if emails_match else None
         else:
-            logging.info(f"No PGP signature found for commit {commit.hexsha}")
+            logger.info(f"No PGP signature found for commit {commit.hexsha}")
         return None
     except Exception as e:
-        logging.error(f"Error verifying PGP signature for commit {commit.hexsha}: {e}")
+        logger.error(f"Error verifying PGP signature for commit {commit.hexsha}: {e}")
         return None
 
 def analyze_commits(repo, repo_path):
@@ -177,7 +166,7 @@ def analyze_commits(repo, repo_path):
     total_loc = 0
     for commit in repo.iter_commits():
         commit_info = get_commit_info(commit)
-        logging.log(TRACE, f"Commit info: {commit_info}")
+        logger.log(TRACE, f"Commit info: {commit_info}")
         key_id = verify_pgp_signature(commit, repo_path)
         if key_id:
             author_email = commit.author.email.lower()
@@ -275,16 +264,16 @@ def load_contributions(file_path):
     try:
         with open(file_path, 'r') as file:
             contributions = json.load(file)
-        logging.info(f"Contributions loaded from {file_path}")
+        logger.info(f"Contributions loaded from {file_path}")
         return contributions
     except Exception as e:
-        logging.error(f"Error loading contributions from {file_path}: {e}")
+        logger.error(f"Error loading contributions from {file_path}: {e}")
         return None
 
 def main():
     repo_url = get_repo_url()
     if not repo_url:
-        logging.error("Repository URL not found")
+        logger.error("Repository URL not found")
         return
 
     repo_path = get_repo_path()
@@ -296,30 +285,30 @@ def main():
     try:
         with open(contributions_file, 'w') as file:
             json.dump(contributions, file, indent=4)
-        logging.info(f"Contributions saved to {contributions_file}")
+        logger.info(f"Contributions saved to {contributions_file}")
     except Exception as e:
-        logging.error(f"Error saving contributions to {contributions_file}: {e}")
+        logger.error(f"Error saving contributions to {contributions_file}: {e}")
 
     # Print out the final contribution statistics
     for email, identity in contributions['identities'].items():
-        logging.info(f"Contributor: {identity['name']} ({email})")
-        logging.info(f"PGP Key ID: {identity['pgp_key_id']}")
-        logging.info(f"Contribution Percentage: {identity['contribution_percentage']:.2f}%")
-        logging.info("")
+        logger.info(f"Contributor: {identity['name']} ({email})")
+        logger.info(f"PGP Key ID: {identity['pgp_key_id']}")
+        logger.info(f"Contribution Percentage: {identity['contribution_percentage']:.2f}%")
+        logger.info("")
 
     # Handle outstanding commits
     if contributions['outstanding_commits']:
-        logging.warning("There are outstanding commits with unverified signatures:")
+        logger.warning("There are outstanding commits with unverified signatures:")
         for commit_sha, commit_info in contributions['outstanding_commits'].items():
-            logging.warning(f"Commit {commit_sha}: {commit_info}")
+            logger.warning(f"Commit {commit_sha}: {commit_info}")
 
     # Get the final contributors list
     contributions = load_contributions(contributions_file)
     if contributions:
         final_contributors = get_final_contributors_list(contributions)
-        logging.info("Final Contributors List:")
+        logger.info("Final Contributors List:")
         for contributor in final_contributors:
-            logging.info(f"Name: {contributor['name']}, Emails: {contributor['emails']}, Rank: {contributor['rank']}")
+            logger.info(f"Name: {contributor['name']}, Emails: {contributor['emails']}, Rank: {contributor['rank']}")
 
 if __name__ == '__main__':
     main()

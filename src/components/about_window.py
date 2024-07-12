@@ -6,36 +6,6 @@ import os
 
 from src.core.contributions import get_final_contributors_list
 
-class ExpandableEmailFrame(ctk.CTkFrame):
-    def __init__(self, master, emails, **kwargs):
-        super().__init__(master, **kwargs)
-        self.emails = emails
-        self.expanded = False
-
-        self.main_email = max(emails, key=emails.get)
-        self.main_label = ctk.CTkLabel(self, text=self.main_email, anchor="e", justify="right")
-        self.main_label.pack(side="right", padx=(0, 10))
-
-        self.expand_button = ctk.CTkButton(self, text="▼", width=20, command=self.toggle_expand)
-        self.expand_button.pack(side="right")
-
-        self.email_labels = []
-
-    def toggle_expand(self):
-        if self.expanded:
-            for label in self.email_labels:
-                label.pack_forget()
-            self.expand_button.configure(text="▼")
-        else:
-            sorted_emails = sorted(self.emails.items(), key=lambda x: x[1], reverse=True)
-            for email, percentage in sorted_emails:
-                if email != self.main_email:
-                    label = ctk.CTkLabel(self, text=f"{email} ({percentage:.2f}%)", anchor="e", justify="right")
-                    label.pack(side="bottom", padx=(0, 10))
-                    self.email_labels.append(label)
-            self.expand_button.configure(text="▲")
-        self.expanded = not self.expanded
-
 class AboutWindow(ctk.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -87,29 +57,23 @@ class AboutWindow(ctk.CTkToplevel):
         self.authors_label.grid(row=3, column=0, pady=(20, 10))
 
         contributors = self.get_contributors()
-        verified_contributors = [c for c in contributors if c['verified']]
-        unverified_contributors = [c for c in contributors if not c['verified']]
 
-        for section, contributors in [("Verified", verified_contributors), ("Unverified", unverified_contributors)]:
-            section_label = ctk.CTkLabel(info_frame, text=section, font=("Arial", 20, "bold"))
-            section_label.grid(row=4, column=0, pady=(10, 10))
+        for i, contributor in enumerate(contributors):
+            contributor_frame = ctk.CTkFrame(info_frame)
+            contributor_frame.grid(row=4+i, column=0, pady=(0, 10), padx=20, sticky="ew")
+            contributor_frame.grid_columnconfigure(1, weight=1)
 
-            for i, contributor in enumerate(contributors):
-                contributor_frame = ctk.CTkFrame(info_frame)
-                contributor_frame.grid(row=5+i, column=0, pady=(0, 10), padx=20, sticky="ew")
-                contributor_frame.grid_columnconfigure(1, weight=1)
+            name_label = ctk.CTkLabel(contributor_frame, text=contributor['name'], font=("Arial", 16, "bold"))
+            name_label.grid(row=0, column=0, padx=(10, 20), pady=5)
 
-                name_label = ctk.CTkLabel(contributor_frame, text=contributor['name'], font=("Arial", 16, "bold"))
-                name_label.grid(row=0, column=0, padx=(10, 20), pady=5)
+            rank_label = ctk.CTkLabel(contributor_frame, text=contributor['rank'], font=("Arial", 14))
+            rank_label.grid(row=0, column=1, padx=10, pady=5)
 
-                rank_label = ctk.CTkLabel(contributor_frame, text=contributor['rank'], font=("Arial", 14))
-                rank_label.grid(row=0, column=1, padx=10, pady=5)
-
-                emails_frame = ExpandableEmailFrame(contributor_frame, contributor['emails'])
-                emails_frame.grid(row=0, column=2, padx=10, pady=5, sticky="e")
+            email_label = ctk.CTkLabel(contributor_frame, text=contributor['emails'][0], font=("Arial", 14))
+            email_label.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
         self.description_label = ctk.CTkLabel(info_frame, text=f"Description: {metadata.metadata('mailsocial')['Summary']}", font=("Arial", 18), wraplength=700, justify="center")
-        self.description_label.grid(row=5+len(contributors), column=0, pady=(20, 20))
+        self.description_label.grid(row=4+len(contributors), column=0, pady=(20, 20))
 
     def get_contributors(self):
         contributions_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.contributions.json')
@@ -121,6 +85,12 @@ class AboutWindow(ctk.CTkToplevel):
             return []
 
         contributors = get_final_contributors_list(contributions_data)
+
+        # Sort contributors by last used timestamp in descending order
+        for contributor in contributors:
+            contributor['last_used_timestamp'] = max(contributions_data['identities'][email]['last_used_timestamp'] for email in contributor['emails'])
+
+        contributors.sort(key=lambda x: x['last_used_timestamp'], reverse=True)
 
         return contributors
 
