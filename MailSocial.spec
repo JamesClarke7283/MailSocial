@@ -4,9 +4,8 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('LICENSE.md', '.'), 
+        ('LICENSE.md', '.'),
         ('assets', 'assets'),
-        ('docs/LICENSE.md', 'docs'),
         ('.default_settings.toml', '.'),
         ('.contributions.json', '.')
     ],
@@ -16,7 +15,7 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=2,  # Highest level of optimization
+    optimize=2,
 )
 pyz = PYZ(a.pure)
 exe = EXE(
@@ -25,7 +24,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [('O', None, 'OPTION'), ('O', None, 'OPTION')],
-    name='mailsocial',  # Binary name for the command line
+    name='mailsocial',
     debug=False,
     bootloader_ignore_signals=False,
     strip=True,
@@ -39,5 +38,4 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=['assets/logo.ico'],
-    version='Mail Social',  # Display name for the application
 )

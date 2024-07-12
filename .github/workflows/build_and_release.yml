@@ -57,7 +57,7 @@ jobs:
       run: |
         cd dist
         main_file=$(ls mailsocial* | grep -v "LICENSE")
-        new_name="MailSocial_${{ matrix.os }}-${{ matrix.arch }}${main_file##MailSocial}"
+        new_name="MailSocial_${{ matrix.os }}-${{ matrix.arch }}${main_file##mailsocial}"
         mv "$main_file" "$new_name"
       shell: bash
 
