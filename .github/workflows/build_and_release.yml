@@ -164,6 +164,10 @@ jobs:
           git push origin nightly -f
       shell: bash
 
+    - name: Close if statement
+      run: |
+        fi
+
   cleanup:
     runs-on: ubuntu-latest
     needs: create-release
