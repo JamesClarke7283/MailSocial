@@ -36,5 +36,6 @@ local_scheme = "node-and-timestamp"
 dev = [
     "gitpython",
     "PyGithub",
-    "python-gnupg"
+    "python-gnupg",
+    "pyinstaller"
 ]
