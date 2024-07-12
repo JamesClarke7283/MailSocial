@@ -12,7 +12,11 @@ authors = [
     { name = "James David Clarke", email = "james@jamesdavidclarke.com" }
 ]
 dependencies = [
-    "customtkinter"
+    "customtkinter",
+    "tortoise-orm",
+    "pillow",
+    "appdirs",
+    "python-dotenv"
 ]
 
 [project.scripts]
