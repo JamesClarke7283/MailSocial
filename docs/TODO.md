@@ -1,1 +1,1 @@
-- [ ] Refactor code by splitting up components into modules again
+- [ ] i13n support(gettext).

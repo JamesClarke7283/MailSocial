@@ -1,5 +1,3 @@
-# ./src/app.py
-# src/app.py
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageOps
@@ -11,6 +9,7 @@ from src.components.chat_list import ChatList
 from src.components.utility_bar import UtilityBar
 from src.components.chat.widget import ChatInterface
 from src.components.settings.window import SettingsWindow
+from src.components.compose.window import ComposeWindow
 from src.utils import get_theme_colors, theme_names, get_default_button_color
 
 # Load environment variables from .env if present
@@ -23,36 +22,32 @@ class MailSocialApp(ctk.CTk):
         self.title("Mail Social")
         self.geometry("1024x768")
 
-        # Configure grid layout (1x2)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        # Get the current theme colors and set default font size
-        self.accent_color = get_default_button_color(ctk.get_appearance_mode().lower())  # Store the current accent color
+        self.accent_color = get_default_button_color(ctk.get_appearance_mode().lower())
         self.update_colors()
-        self.font_size = tk.IntVar(value=12)  # Default font size
+        self.font_size = tk.IntVar(value=12)
 
-        # Left sidebar frame with chat list and utility bar
         self.sidebar_frame = ctk.CTkFrame(self, corner_radius=0, fg_color=self.colors["primary"], width=300)
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
         self.sidebar_frame.grid_rowconfigure(0, weight=1)
         self.sidebar_frame.grid_columnconfigure(0, weight=1)
         self.sidebar_frame.grid_propagate(False)
 
-        self.chat_list = ChatList(self.sidebar_frame, self.colors, self.font_size)
+        self.chat_list = ChatList(self.sidebar_frame, self.colors, self.font_size, self)
         self.chat_list.grid(row=0, column=0, sticky="nsew", padx=10, pady=(10, 0))
 
         self.utility_bar = UtilityBar(self.sidebar_frame, self.colors, self.open_settings)
         self.utility_bar.grid(row=1, column=0, sticky="ew", padx=10, pady=10)
 
-        # Right main frame with chat interface
         self.main_frame = ChatInterface(self, self.colors)
         self.main_frame.grid(row=0, column=1, sticky="nsew", padx=(1, 0), pady=0)
 
     def send_message(self):
         message = self.main_frame.message_frame.get_message()
         if message:
-            self.main_frame.display_message(f"You: {message}")
+            self.main_frame.display_message(message, "You", True)
             self.main_frame.message_frame.clear_message()
             logger.info(f"Message sent: {message}")
 
@@ -68,7 +63,6 @@ class MailSocialApp(ctk.CTk):
         self.apply_colors()
 
     def apply_colors(self):
-        # Apply colors to all components
         if hasattr(self, 'chat_list'):
             self.chat_list.update_colors(self.colors)
         if hasattr(self, 'main_frame'):
@@ -87,6 +81,14 @@ class MailSocialApp(ctk.CTk):
         self.accent_color = color
         self.update_colors()
         logger.info(f"Updated accent color to: {color}")
+
+    def display_chat(self, chat):
+        self.main_frame.display_chat(chat)
+
+    def open_compose_window(self):
+        compose_window = ComposeWindow(self)
+        self.wait_visibility(compose_window)  # Ensure window is viewable before grabbing
+        compose_window.grab_set()
 
 if __name__ == "__main__":
     app = MailSocialApp()
