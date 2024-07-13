@@ -38,3 +38,34 @@ jobs:
     - name: Check for any failures
       if: failure()
       run: exit 1
+
+  mark-as-ready:
+    runs-on: ubuntu-latest
+    needs: lint
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: Set PR as ready for review
+      if: success()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pr = context.issue.number;
+          github.rest.pulls.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: pr,
+            draft: false
+          });
+
+    - name: Revert PR to draft if linting fails
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pr = context.issue.number;
+          github.rest.pulls.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: pr,
+            draft: true
+          });
