@@ -65,7 +65,7 @@ class MailSocialApp(ctk.CTk):
         current_theme = ctk.get_appearance_mode().lower()
         self.colors = get_theme_colors(current_theme)
         self.colors["button"] = self.accent_color
-        logger.trace(f"Updated colors to: {self.colors}")
+        logger.log(TRACE, f"Updated colors to: {self.colors}")
         self.apply_colors()
 
     def apply_colors(self) -> None:

@@ -55,10 +55,10 @@ class AboutWindow(ctk.CTkToplevel):
         )
 
         self.dark_image_resized = self.dark_image.resize(
-            (new_width, new_height), Image.LANCZOS
+            (new_width, new_height), Image.Resampling.LANCZOS
         )
         self.light_image_resized = self.light_image.resize(
-            (new_width, new_height), Image.LANCZOS
+            (new_width, new_height), Image.Resampling.LANCZOS
         )
 
         self.logo_image = ctk.CTkImage(

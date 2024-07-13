@@ -1,12 +1,11 @@
-# ./src/components/settings/window.py
-# src/components/settings/window.py
 import customtkinter as ctk
+from typing import Any
 
 from .appearance import AppearanceSettings
 
 
 class SettingsWindow(ctk.CTkToplevel):
-    def __init__(self, parent):
+    def __init__(self, parent: Any) -> None:
         super().__init__(parent)
         self.parent = parent
         self.title("Settings")
@@ -21,11 +20,11 @@ class SettingsWindow(ctk.CTkToplevel):
         # Set the default tab
         self.tab_view.set("Appearance")
 
-    def update_colors(self):
+    def update_colors(self) -> None:
         self.appearance_settings.update_colors()
 
-    def update_font_size(self, new_size):
+    def update_font_size(self, new_size: int) -> None:
         self.appearance_settings.update_font_size(new_size)
 
-    def update_accent_color(self, color):
+    def update_accent_color(self, color: str) -> None:
         self.parent.update_accent_color(color)

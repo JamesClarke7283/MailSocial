@@ -1,10 +1,9 @@
-# src/components/about/info_tab.py
-
 from importlib import metadata
 import customtkinter as ctk
 from PIL import Image, ImageOps
+from typing import Any
 
-def setup_info_tab(self) -> None:
+def setup_info_tab(self: Any) -> None:
     info_frame = ctk.CTkScrollableFrame(self.info_tab)
     info_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
     info_frame.grid_columnconfigure(0, weight=1)
@@ -78,4 +77,3 @@ def setup_info_tab(self) -> None:
         justify="center",
     )
     self.description_label.grid(row=4 + len(contributors), column=0, pady=(20, 20))
-

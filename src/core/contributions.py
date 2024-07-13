@@ -45,12 +45,13 @@ def get_commit_info(commit: Any) -> Dict[str, Union[str, int, bool, float]]:
 def get_repo_url() -> Optional[str]:
     """Get the repository URL from the project metadata."""
     try:
-        project_urls = metadata.metadata("mailsocial").get_all("Project-URL", [])
+        project_urls: List[str] = metadata.metadata("mailsocial").get_all("Project-URL", [])
         for url_entry in project_urls:
             key, url = url_entry.split(",", 1)
             if key.strip().lower() == "source":
                 return url.strip()
-        raise ValueError("Source URL not found in project metadata")
+        logger.error("Source URL not found in project metadata")
+        return None
     except Exception as e:
         logger.error(f"Error retrieving repository URL from metadata: {e}")
         return None
@@ -186,42 +187,44 @@ def analyze_commits(repo: Repo, repo_path: str) -> Dict[str, Any]:
         logger.log(TRACE, f"Commit info: {commit_info}")
         key_id = verify_pgp_signature(commit, repo_path)
         if key_id:
-            author_email = commit.author.email.lower()
-            if author_email not in identities:
-                identities[author_email] = {
-                    "id": str(uuid.uuid4()),
-                    "email": author_email,
-                    "name": commit.author.name,
-                    "pgp_key_id": key_id,
-                    "github_username": None,
-                    "verified": True,
-                    "contribution_percentage": 0.0,
-                    "last_used_timestamp": commit.committed_date,
-                }
-            # Update the lines of code count
-            if commit.parents:
-                diff = repo.git.diff(
-                    commit.parents[0], commit, "--numstat", "--no-renames"
-                ).strip()
-                for line in diff.split("\n"):
-                    if line:
-                        parts = line.split()
-                        if len(parts) >= 2 and parts[0].isdigit():
-                            loc = int(parts[0])
-                            identities[author_email]["contribution_percentage"] += loc
-                            total_loc += loc
-            else:
-                # Handle the initial commit (no parents)
-                diff = repo.git.diff_tree(
-                    "--numstat", "--no-renames", "--root", commit.hexsha
-                ).strip()
-                for line in diff.split("\n"):
-                    if line:
-                        parts = line.split()
-                        if len(parts) >= 2 and parts[0].isdigit():
-                            loc = int(parts[0])
-                            identities[author_email]["contribution_percentage"] += loc
-                            total_loc += loc
+            author_email = commit.author.email
+            if author_email is not None:
+                author_email = author_email.lower()
+                if author_email not in identities:
+                    identities[author_email] = {
+                        "id": str(uuid.uuid4()),
+                        "email": author_email,
+                        "name": commit.author.name,
+                        "pgp_key_id": key_id,
+                        "github_username": None,
+                        "verified": True,
+                        "contribution_percentage": 0.0,
+                        "last_used_timestamp": commit.committed_date,
+                    }
+                # Update the lines of code count
+                if commit.parents:
+                    diff = repo.git.diff(
+                        commit.parents[0], commit, "--numstat", "--no-renames"
+                    ).strip()
+                    for line in diff.split("\n"):
+                        if line:
+                            parts = line.split()
+                            if len(parts) >= 2 and parts[0].isdigit():
+                                loc = int(parts[0])
+                                identities[author_email]["contribution_percentage"] += loc
+                                total_loc += loc
+                else:
+                    # Handle the initial commit (no parents)
+                    diff = repo.git.diff_tree(
+                        "--numstat", "--no-renames", "--root", commit.hexsha
+                    ).strip()
+                    for line in diff.split("\n"):
+                        if line:
+                            parts = line.split()
+                            if len(parts) >= 2 and parts[0].isdigit():
+                                loc = int(parts[0])
+                                identities[author_email]["contribution_percentage"] += loc
+                                total_loc += loc
         else:
             outstanding_commits[commit.hexsha] = commit_info
 

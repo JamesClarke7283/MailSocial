@@ -1,5 +1,6 @@
 import tkinter as tk
 from datetime import datetime
+from typing import List, Dict, Any, Union, cast
 
 import customtkinter as ctk
 from PIL import Image, ImageDraw, ImageFont, ImageTk
@@ -8,9 +9,8 @@ from src.core.models.chat import Chat
 from src.core.models.member import Member
 from src.core.models.message import Message, MessageStatus
 
-
 class ChatItem(ctk.CTkButton):
-    def __init__(self, master, chat, font_size, app_instance, *args, **kwargs):
+    def __init__(self, master: Any, chat: Chat, font_size: tk.IntVar, app_instance: Any, *args: Any, **kwargs: Any) -> None:
         super().__init__(master, fg_color=master.colors["secondary"], *args, **kwargs)
         self.chat = chat
         self.font_size = font_size.get()
@@ -28,21 +28,22 @@ class ChatItem(ctk.CTkButton):
 
         # Use a proper PIL ImageFont
         try:
-            font = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
+            font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont] = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
         except IOError:
             font = ImageFont.load_default()
 
         draw.text(
-            (size / 2, size / 2),
+            (size // 2, size // 2),
             chat.title[0].upper(),
             fill=self.colors["button_text"],
             anchor="mm",
             font=font,
         )
-        photo = ImageTk.PhotoImage(image)
+        photo = ImageTk.PhotoImage(image)  # type: ignore
 
-        self.image_label = tk.Label(self, image=photo, bg=self.colors["secondary"])
-        self.image_label.image = photo
+        self.image_label = tk.Label(self, bg=self.colors["secondary"])
+        self.image_label.configure(**cast(Dict[str, Any], {"image": photo}))
+        self.image_label.image = photo  # type: ignore
         self.image_label.grid(row=0, column=0, padx=(10, 5), pady=10)
 
         self.text_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -66,11 +67,11 @@ class ChatItem(ctk.CTkButton):
 
         self.configure(command=self.on_click)
 
-    def truncate_message(self, message):
+    def truncate_message(self, message: str) -> str:
         max_chars = int(200 / self.font_size * 10)
         return message[:max_chars] + "..." if len(message) > max_chars else message
 
-    def update_font_size(self, new_size):
+    def update_font_size(self, new_size: int) -> None:
         self.font_size = new_size
         self.name_label.configure(font=("Arial", int(self.font_size * 1.2), "bold"))
         self.message_label.configure(
@@ -78,7 +79,7 @@ class ChatItem(ctk.CTkButton):
             text=self.truncate_message(self.chat.messages[-1].content),
         )
 
-    def update_colors(self, colors):
+    def update_colors(self, colors: Dict[str, str]) -> None:
         self.colors = colors
         self.configure(fg_color=colors["secondary"])
         self.image_label.configure(bg=colors["secondary"])
@@ -87,32 +88,32 @@ class ChatItem(ctk.CTkButton):
         draw = ImageDraw.Draw(image)
         draw.ellipse((0, 0, size, size), fill=colors["button"])
         try:
-            font = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
+            font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont] = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
         except IOError:
             font = ImageFont.load_default()
         draw.text(
-            (size / 2, size / 2),
+            (size // 2, size // 2),
             self.chat.title[0].upper(),
             fill=colors["button_text"],
             anchor="mm",
             font=font,
         )
-        photo = ImageTk.PhotoImage(image)
-        self.image_label.configure(image=photo)
-        self.image_label.image = photo
+        photo = ImageTk.PhotoImage(image)  # type: ignore
+        self.image_label.configure(**cast(Dict[str, Any], {"image": photo}))
+        self.image_label.image = photo  # type: ignore
         self.name_label.configure(text_color=colors["text"])
         self.message_label.configure(text_color=colors["text"])
 
-    def on_click(self):
+    def on_click(self) -> None:
         self.app_instance.display_chat(self.chat)
 
 
 class ChatList(ctk.CTkScrollableFrame):
-    def __init__(self, master, colors, font_size, app_instance, *args, **kwargs):
+    def __init__(self, master: Any, colors: Dict[str, str], font_size: tk.IntVar, app_instance: Any, *args: Any, **kwargs: Any) -> None:
         super().__init__(master, fg_color=colors["primary"], *args, **kwargs)
         self.colors = colors
         self.font_size = font_size
-        self.chat_items = []
+        self.chat_items: List[ChatItem] = []
         self.app_instance = app_instance
 
         self.compose_button = ctk.CTkButton(
@@ -153,7 +154,7 @@ class ChatList(ctk.CTkScrollableFrame):
                     ),
                     Message(
                         [],
-                        Member("unknown@example.com", "000", True, None),
+                        Member("unknown@example.com", "000", True, "Unknown"),
                         "Who is this?",
                         datetime.now(),
                         MessageStatus.LOCAL_ONLY,
@@ -236,11 +237,11 @@ class ChatList(ctk.CTkScrollableFrame):
             )
             self.chat_items.append(chat_item)
 
-    def update_font_size(self, new_size):
+    def update_font_size(self, new_size: int) -> None:
         for chat_item in self.chat_items:
             chat_item.update_font_size(new_size)
 
-    def update_colors(self, colors):
+    def update_colors(self, colors: Dict[str, str]) -> None:
         self.colors = colors
         self.configure(fg_color=self.colors["primary"])
         for chat_item in self.chat_items:

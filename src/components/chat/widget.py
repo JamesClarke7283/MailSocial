@@ -1,12 +1,11 @@
-# src/components/chat/widget.py
-
 import customtkinter as ctk
+from typing import Dict, Any
 from src.components.chat.input import MessageInput
 from src.components.chat.messages import ChatMessages
 from src.core.models.chat import Chat
 
 class ChatInterface(ctk.CTkFrame):
-    def __init__(self, master: ctk.CTk, colors: dict, *args, **kwargs) -> None:
+    def __init__(self, master: Any, colors: Dict[str, str], *args: Any, **kwargs: Any) -> None:
         super().__init__(master, fg_color="transparent", *args, **kwargs)
         self.colors = colors
         self.grid_rowconfigure(0, weight=1)
@@ -23,7 +22,7 @@ class ChatInterface(ctk.CTkFrame):
     def display_message(self, message: str, sender: str = "You", is_user: bool = True) -> None:
         self.chat_display.display_message(message, sender, is_user)
 
-    def update_colors(self, colors: dict) -> None:
+    def update_colors(self, colors: Dict[str, str]) -> None:
         self.colors = colors
         self.chat_display.update_colors(colors)
         self.message_frame.update_colors(colors)

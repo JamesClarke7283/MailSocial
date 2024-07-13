@@ -1,11 +1,12 @@
 # ./src/components/utility_bar.py
 import customtkinter as ctk
+from typing import Any, Dict, Callable
 
 from src.components.about.window import AboutWindow
 
 
 class UtilityBar(ctk.CTkFrame):
-    def __init__(self, master, colors, settings_command, *args, **kwargs):
+    def __init__(self, master: Any, colors: Dict[str, str], settings_command: Callable[[], None], *args: Any, **kwargs: Any) -> None:
         super().__init__(master, fg_color="transparent", *args, **kwargs)
         self.colors = colors
 
@@ -50,13 +51,13 @@ class UtilityBar(ctk.CTkFrame):
         )
         self.profile_button.pack(side="left", padx=(5, 0))
 
-    def open_about(self):
+    def open_about(self) -> None:
         AboutWindow(self).grab_set()
 
-    def open_profile(self):
+    def open_profile(self) -> None:
         print("Profile button clicked")
 
-    def update_colors(self, colors):
+    def update_colors(self, colors: Dict[str, str]) -> None:
         self.colors = colors
         self.info_button.configure(
             fg_color=self.colors["button"], text_color=self.colors["button_text"]
