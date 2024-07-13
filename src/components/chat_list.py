@@ -1,6 +1,7 @@
+# ./src/components/chat_list.py
 import tkinter as tk
 from datetime import datetime
-from typing import List, Dict, Any, Union, cast
+from typing import List, Dict, Any, Union
 
 import customtkinter as ctk
 from PIL import Image, ImageDraw, ImageFont, ImageTk
@@ -11,6 +12,8 @@ from src.core.models.message import Message, MessageStatus
 
 
 class ChatItem(ctk.CTkButton):
+    image_cache = {}  # Class-level dictionary to store image references
+
     def __init__(
         self,
         master: Any,
@@ -50,11 +53,13 @@ class ChatItem(ctk.CTkButton):
             anchor="mm",
             font=font,
         )
-        photo = ImageTk.PhotoImage(image)  # type: ignore
 
-        self.image_label = tk.Label(self, bg=self.colors["secondary"])
-        self.image_label.configure(**cast(Dict[str, Any], {"image": photo}))
-        self.image_label.image = photo  # type: ignore
+        # Store image in the class-level dictionary to avoid garbage collection
+        self.photo = ImageTk.PhotoImage(image)
+        ChatItem.image_cache[self.chat.title] = self.photo
+
+        self.image_label = tk.Label(self, bg=self.colors["secondary"], image=self.photo)
+        self.image_label.image = self.photo  # Keep a reference to the image
         self.image_label.grid(row=0, column=0, padx=(10, 5), pady=10)
 
         self.text_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -111,9 +116,13 @@ class ChatItem(ctk.CTkButton):
             anchor="mm",
             font=font,
         )
-        photo = ImageTk.PhotoImage(image)  # type: ignore
-        self.image_label.configure(**cast(Dict[str, Any], {"image": photo}))
-        self.image_label.image = photo  # type: ignore
+
+        # Store updated image in the class-level dictionary to avoid garbage collection
+        self.photo = ImageTk.PhotoImage(image)
+        ChatItem.image_cache[self.chat.title] = self.photo
+
+        self.image_label.configure(image=self.photo)
+        self.image_label.image = self.photo  # Keep a reference to the image
         self.name_label.configure(text_color=colors["text"])
         self.message_label.configure(text_color=colors["text"])
 

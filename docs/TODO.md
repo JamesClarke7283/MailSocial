@@ -1,1 +1,2 @@
 - [ ] i13n support(gettext).
+- [ ] Write Tests for application with pytest-tkinter.

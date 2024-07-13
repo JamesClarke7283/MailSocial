@@ -43,7 +43,10 @@ dev = [
     "black",
     "isort",
     "mypy",
-    "bandit"
+    "bandit",
+    "fastapi",
+    "hypercorn",
+    "requests"
 ]
 
 [tool.black]

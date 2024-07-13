@@ -1,22 +1,21 @@
 import os
 import tkinter as tk
-
 import customtkinter as ctk
 from dotenv import load_dotenv
-from PIL import Image, ImageOps
-
+from multiprocessing import Queue as MPQueue
 from src.components.chat.widget import ChatInterface
 from src.components.chat_list import ChatList
 from src.components.compose.window import ComposeWindow
 from src.components.settings.window import SettingsWindow
 from src.components.utility_bar import UtilityBar
 from src.core.logging import TRACE, logger
-from src.utils import get_default_button_color, get_theme_colors, theme_names
+from src.utils import get_default_button_color, get_theme_colors
+from src.testdriver import testdriveable_tk
 
 # Load environment variables from .env if present
 load_dotenv()
 
-
+@testdriveable_tk
 class MailSocialApp(ctk.CTk):
     def __init__(self) -> None:
         super().__init__()
@@ -51,11 +50,14 @@ class MailSocialApp(ctk.CTk):
         self.main_frame.grid(row=0, column=1, sticky="nsew", padx=(1, 0), pady=0)
 
     def send_message(self) -> None:
-        message = self.main_frame.message_frame.get_message()
-        if message:
-            self.main_frame.display_message(message, "You", True)
-            self.main_frame.message_frame.clear_message()
-            logger.info(f"Message sent: {message}")
+        try:
+            message = self.main_frame.message_frame.get_message()
+            if message:
+                self.main_frame.display_message(message, "You", True)
+                self.main_frame.message_frame.clear_message()
+                logger.info(f"Message sent: {message}")
+        except AttributeError as e:
+            logger.error(f"Error in send_message: {str(e)}")
 
     def open_settings(self) -> None:
         settings_window = SettingsWindow(self)
@@ -88,16 +90,13 @@ class MailSocialApp(ctk.CTk):
         self.update_colors()
         logger.info(f"Updated accent color to: {color}")
 
-    def display_chat(self, chat: ChatInterface) -> None:
+    def display_chat(self, chat) -> None:
         self.main_frame.display_chat(chat)
 
     def open_compose_window(self) -> None:
         compose_window = ComposeWindow(self)
-        self.wait_visibility(
-            compose_window
-        )  # Ensure window is viewable before grabbing
+        self.wait_visibility(compose_window)  # Ensure window is viewable before grabbing
         compose_window.grab_set()
-
 
 if __name__ == "__main__":
     app = MailSocialApp()
