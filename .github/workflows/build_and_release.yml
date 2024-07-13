@@ -114,7 +114,7 @@ jobs:
             gh release create "$release_tag" --title "Release $release_tag" --notes "Placeholder for release notes" --prerelease
           fi
 
-          gh release upload "$release_tag" dist/MailSocial_* --clobber
+          gh release upload "$release_tag" dist/MailSocial_* --clobber || true
         shell: bash
 
   create-release:
