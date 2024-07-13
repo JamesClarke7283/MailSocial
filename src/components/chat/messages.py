@@ -12,3 +12,7 @@ class ChatMessages(ctk.CTkFrame):
     def display_message(self, message):
         message_label = ctk.CTkLabel(self, text=message, anchor="w", justify="left", text_color=self.colors["text"], fg_color=self.colors["secondary"], corner_radius=5, padx=10, pady=5)
         message_label.pack(fill="x", padx=5, pady=2)
+
+    def update_colors(self, colors):
+        self.colors = colors
+        self.configure(fg_color=self.colors["secondary"])

@@ -1,5 +1,7 @@
-[themes]
-  [themes.light]
+[appearance]
+
+[appearance.themes]
+  [appearance.themes.light]
   primary = "#ffffff"
   secondary = "#f9f9f9"
   tertiary = "#e0e0e0"
@@ -8,7 +10,7 @@
   button_text = "#ffffff"
   border = "#ced4da"
 
-  [themes.dark]
+  [appearance.themes.dark]
   primary = "#212529"
   secondary = "#343a40"
   tertiary = "#495057"
@@ -16,3 +18,10 @@
   button = "#007bff"
   button_text = "#ffffff"
   border = "#6c757d"
+
+[appearance.accents]
+  [appearance.accents.orange]
+  color = "#ff5722"
+
+  [appearance.accents.amber]
+  color = "#ff9800"

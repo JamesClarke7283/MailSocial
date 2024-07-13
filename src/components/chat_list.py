@@ -1,3 +1,4 @@
+# src/components/chat_list.py
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageDraw, ImageTk, ImageFont
@@ -10,10 +11,10 @@ class ChatItem(ctk.CTkFrame):
 
         # Create circular image
         size = int(self.font_size * 2.5)  # Adjust image size based on font size
-        image = Image.new('RGB', (size, size), self.colors["button"])
+        image = Image.new('RGBA', (size, size), (0, 0, 0, 0))  # Transparent background
         draw = ImageDraw.Draw(image)
-        draw.ellipse([0, 0, size, size], fill=self.colors["button"])
-        
+        draw.ellipse((0, 0, size, size), fill=self.colors["button"])  # Use fill for the icon color
+
         # Use a proper PIL ImageFont
         try:
             font = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
@@ -45,6 +46,26 @@ class ChatItem(ctk.CTkFrame):
         self.name_label.configure(font=("Arial", int(self.font_size * 1.2), "bold"))
         self.message_label.configure(font=("Arial", self.font_size), text=self.truncate_message(self.message_label.cget("text")))
 
+    def update_colors(self, colors):
+        self.colors = colors
+        self.configure(fg_color=self.colors["secondary"])
+        self.image_label.configure(bg=self.colors["secondary"])
+        # Re-create the image with updated colors
+        size = int(self.font_size * 2.5)
+        image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(image)
+        draw.ellipse((0, 0, size, size), fill=self.colors["button"])
+        try:
+            font = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
+        except IOError:
+            font = ImageFont.load_default()
+        draw.text((size/2, size/2), self.name_label.cget("text")[0].upper(), fill=self.colors["button_text"], anchor='mm', font=font)
+        photo = ImageTk.PhotoImage(image)
+        self.image_label.configure(image=photo)
+        self.image_label.image = photo
+        self.name_label.configure(text_color=self.colors["text"])
+        self.message_label.configure(text_color=self.colors["text"])
+
 class ChatList(ctk.CTkScrollableFrame):
     def __init__(self, master, colors, font_size, *args, **kwargs):
         super().__init__(master, fg_color=colors["primary"], *args, **kwargs)
@@ -68,3 +89,9 @@ class ChatList(ctk.CTkScrollableFrame):
     def update_font_size(self, new_size):
         for chat_item in self.chat_items:
             chat_item.update_font_size(new_size)
+
+    def update_colors(self, colors):
+        self.colors = colors
+        self.configure(fg_color=self.colors["primary"])
+        for chat_item in self.chat_items:
+            chat_item.update_colors(colors)

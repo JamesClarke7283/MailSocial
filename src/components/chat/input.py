@@ -20,3 +20,10 @@ class MessageInput(ctk.CTkFrame):
 
     def clear_message(self):
         self.message_entry.delete(0, ctk.END)
+
+    def update_colors(self, colors):
+        self.colors = colors
+        self.configure(fg_color=self.colors["tertiary"])
+        self.message_entry.configure(fg_color=self.colors["primary"], text_color=self.colors["text"])
+        self.send_button.configure(fg_color=self.colors["button"], text_color=self.colors["button_text"])
+

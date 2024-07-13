@@ -36,8 +36,8 @@ class UtilityBar(ctk.CTkFrame):
     def open_profile(self):
         print("Profile button clicked")
 
-    def open_about(self):
-        AboutWindow(self).grab_set()
-
-    def open_profile(self):
-        print("Profile button clicked")
+    def update_colors(self, colors):
+        self.colors = colors
+        self.info_button.configure(fg_color=self.colors["button"], text_color=self.colors["button_text"])
+        self.settings_button.configure(fg_color=self.colors["button"], text_color=self.colors["button_text"])
+        self.profile_button.configure(fg_color=self.colors["button"], text_color=self.colors["button_text"])

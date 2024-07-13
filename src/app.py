@@ -1,8 +1,8 @@
+# ./src/app.py
 # src/app.py
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageOps
-import tomllib
 import os
 from src.core.logging import logger, TRACE
 from dotenv import load_dotenv
@@ -10,19 +10,11 @@ from dotenv import load_dotenv
 from src.components.chat_list import ChatList
 from src.components.utility_bar import UtilityBar
 from src.components.chat.widget import ChatInterface
+from src.components.settings.window import SettingsWindow
+from src.utils import get_theme_colors, theme_names, get_default_button_color
 
 # Load environment variables from .env if present
 load_dotenv()
-
-# Read themes from the .default_settings.toml file
-with open(".default_settings.toml", "rb") as f:
-    config = tomllib.load(f)
-
-themes = config["themes"]
-theme_names = [theme.capitalize() for theme in themes.keys()]
-
-def get_theme_colors(theme_name):
-    return themes[theme_name.lower()]
 
 class MailSocialApp(ctk.CTk):
     def __init__(self):
@@ -36,6 +28,7 @@ class MailSocialApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         # Get the current theme colors and set default font size
+        self.accent_color = get_default_button_color(ctk.get_appearance_mode().lower())  # Store the current accent color
         self.update_colors()
         self.font_size = tk.IntVar(value=12)  # Default font size
 
@@ -68,50 +61,32 @@ class MailSocialApp(ctk.CTk):
         settings_window.grab_set()
 
     def update_colors(self):
-        self.colors = get_theme_colors(ctk.get_appearance_mode().lower())
+        current_theme = ctk.get_appearance_mode().lower()
+        self.colors = get_theme_colors(current_theme)
+        self.colors["button"] = self.accent_color
         logger.trace(f"Updated colors to: {self.colors}")
+        self.apply_colors()
+
+    def apply_colors(self):
+        # Apply colors to all components
+        if hasattr(self, 'chat_list'):
+            self.chat_list.update_colors(self.colors)
+        if hasattr(self, 'main_frame'):
+            self.main_frame.update_colors(self.colors)
+        if hasattr(self, 'utility_bar'):
+            self.utility_bar.update_colors(self.colors)
+        if hasattr(self, 'sidebar_frame'):
+            self.sidebar_frame.configure(fg_color=self.colors["primary"])
 
     def update_font_size(self, new_size):
         self.font_size.set(new_size)
         self.chat_list.update_font_size(new_size)
         logger.info(f"Updated font size to: {new_size}")
 
-class SettingsWindow(ctk.CTkToplevel):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.parent = parent
-        self.title("Settings")
-        self.geometry("400x400")
-
-        self.appearance_mode_label = ctk.CTkLabel(self, text="Appearance Mode:")
-        self.appearance_mode_label.pack(pady=10)
-
-        self.appearance_mode_optionmenu = ctk.CTkOptionMenu(self, values=theme_names,
-                                                            command=self.change_appearance_mode)
-        self.appearance_mode_optionmenu.set(ctk.get_appearance_mode())
-        self.appearance_mode_optionmenu.pack(pady=10)
-
-        self.font_size_label = ctk.CTkLabel(self, text="Font Size:")
-        self.font_size_label.pack(pady=10)
-
-        self.font_size_slider = ctk.CTkSlider(self, from_=8, to=20, number_of_steps=12,
-                                              command=self.change_font_size)
-        self.font_size_slider.set(self.parent.font_size.get())
-        self.font_size_slider.pack(pady=10)
-
-        self.font_size_value_label = ctk.CTkLabel(self, text=f"Font Size: {self.parent.font_size.get()}")
-        self.font_size_value_label.pack(pady=5)
-
-    def change_appearance_mode(self, mode):
-        ctk.set_appearance_mode(mode.lower())
-        self.parent.update_colors()
-        logger.info(f"Changed appearance mode to: {mode}")
-
-    def change_font_size(self, value):
-        new_size = int(value)
-        self.font_size_value_label.configure(text=f"Font Size: {new_size}")
-        self.parent.update_font_size(new_size)
-        logger.info(f"Changed font size to: {new_size}")
+    def update_accent_color(self, color):
+        self.accent_color = color
+        self.update_colors()
+        logger.info(f"Updated accent color to: {color}")
 
 if __name__ == "__main__":
     app = MailSocialApp()

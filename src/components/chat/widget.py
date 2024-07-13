@@ -21,3 +21,8 @@ class ChatInterface(ctk.CTkFrame):
 
     def display_message(self, message):
         self.chat_display.display_message(message)
+
+    def update_colors(self, colors):
+        self.colors = colors
+        self.chat_display.update_colors(colors)
+        self.message_frame.update_colors(colors)
