@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from src.components.about_window import AboutWindow
+from src.components.about.window import AboutWindow
 
 class UtilityBar(ctk.CTkFrame):
     def __init__(self, master, colors, settings_command, *args, **kwargs):
