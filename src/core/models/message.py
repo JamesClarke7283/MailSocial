@@ -1,8 +1,10 @@
 from dataclasses import dataclass
-from typing import List
-from src.core.models.member import Member
 from datetime import datetime
 from enum import Enum
+from typing import List
+
+from src.core.models.member import Member
+
 
 class MessageStatus(Enum):
     """
@@ -27,6 +29,7 @@ class MessageStatus(Enum):
     READ = "Read"
     LOCAL_ONLY = "Local Only"
     OUTBOX = "Outbox"
+
 
 @dataclass
 class Message:

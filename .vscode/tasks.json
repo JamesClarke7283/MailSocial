@@ -1,0 +1,55 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Black",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/black",
+            "args": ["."],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "isort",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/isort",
+            "args": ["."],
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Mypy",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/mypy",
+            "args": ["src"],
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Bandit",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/bandit",
+            "args": ["-r", "src"],
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Lint All",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Black", "isort", "Mypy", "Bandit"]
+        }
+    ]
+}

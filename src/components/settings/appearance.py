@@ -2,8 +2,15 @@
 # src/components/settings/appearance.py
 import customtkinter as ctk
 from PIL import Image, ImageDraw, ImageTk
-from src.utils import get_theme_colors, theme_names, get_accents, get_default_button_color
+
 from src.core.logging import logger
+from src.utils import (
+    get_accents,
+    get_default_button_color,
+    get_theme_colors,
+    theme_names,
+)
+
 
 class AppearanceSettings(ctk.CTkFrame):
     def __init__(self, master, parent, *args, **kwargs):
@@ -14,20 +21,24 @@ class AppearanceSettings(ctk.CTkFrame):
         self.appearance_mode_label = ctk.CTkLabel(self, text="Appearance Mode:")
         self.appearance_mode_label.pack(pady=10)
 
-        self.appearance_mode_optionmenu = ctk.CTkOptionMenu(self, values=theme_names,
-                                                            command=self.change_appearance_mode)
+        self.appearance_mode_optionmenu = ctk.CTkOptionMenu(
+            self, values=theme_names, command=self.change_appearance_mode
+        )
         self.appearance_mode_optionmenu.set(ctk.get_appearance_mode())
         self.appearance_mode_optionmenu.pack(pady=10)
 
         self.font_size_label = ctk.CTkLabel(self, text="Font Size:")
         self.font_size_label.pack(pady=10)
 
-        self.font_size_slider = ctk.CTkSlider(self, from_=8, to=20, number_of_steps=12,
-                                              command=self.change_font_size)
+        self.font_size_slider = ctk.CTkSlider(
+            self, from_=8, to=20, number_of_steps=12, command=self.change_font_size
+        )
         self.font_size_slider.set(self.parent.parent.font_size.get())
         self.font_size_slider.pack(pady=10)
 
-        self.font_size_value_label = ctk.CTkLabel(self, text=f"Font Size: {self.parent.parent.font_size.get()}")
+        self.font_size_value_label = ctk.CTkLabel(
+            self, text=f"Font Size: {self.parent.parent.font_size.get()}"
+        )
         self.font_size_value_label.pack(pady=5)
 
         self.accent_color_label = ctk.CTkLabel(self, text="Accent Color:")
@@ -46,24 +57,40 @@ class AppearanceSettings(ctk.CTkFrame):
         default_button_color = get_default_button_color(current_theme)
 
         # Add a button for default accent color
-        default_button = ctk.CTkButton(self.accent_palette, text="Default", fg_color=default_button_color,
-                                       width=40, height=40, corner_radius=20,
-                                       command=lambda: self.change_accent_color(default_button_color, default_button))
+        default_button = ctk.CTkButton(
+            self.accent_palette,
+            text="Default",
+            fg_color=default_button_color,
+            width=40,
+            height=40,
+            corner_radius=20,
+            command=lambda: self.change_accent_color(
+                default_button_color, default_button
+            ),
+        )
         default_button.pack(side="left", padx=5, pady=5)
         self.accent_buttons.append(default_button)
         self.set_accent_button_border(default_button, selected=True)
 
         for accent_name, color in accents.items():
-            button = ctk.CTkButton(self.accent_palette, text="", fg_color=color,
-                                   width=40, height=40, corner_radius=20)
-            button.configure(command=lambda btn=button, clr=color: self.change_accent_color(clr, btn))
+            button = ctk.CTkButton(
+                self.accent_palette,
+                text="",
+                fg_color=color,
+                width=40,
+                height=40,
+                corner_radius=20,
+            )
+            button.configure(
+                command=lambda btn=button, clr=color: self.change_accent_color(clr, btn)
+            )
             button.pack(side="left", padx=5, pady=5)
             self.accent_buttons.append(button)
 
     def set_accent_button_border(self, button, selected):
         if selected:
             mode = ctk.get_appearance_mode().lower()
-            ring_color = "#ffffff" if mode == 'dark' else "#666666"
+            ring_color = "#ffffff" if mode == "dark" else "#666666"
             button.configure(border_color=ring_color, border_width=2)
         else:
             # Use cget to get the current fg_color
@@ -86,7 +113,7 @@ class AppearanceSettings(ctk.CTkFrame):
         self.selected_accent = button
         if self.selected_accent:
             self.set_accent_button_border(self.selected_accent, selected=True)
-        
+
         self.parent.parent.update_accent_color(color)
         logger.info(f"Changed accent color to: {color}")
 

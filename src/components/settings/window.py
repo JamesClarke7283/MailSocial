@@ -1,7 +1,9 @@
 # ./src/components/settings/window.py
 # src/components/settings/window.py
 import customtkinter as ctk
+
 from .appearance import AppearanceSettings
+
 
 class SettingsWindow(ctk.CTkToplevel):
     def __init__(self, parent):

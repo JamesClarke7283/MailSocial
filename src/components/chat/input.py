@@ -1,7 +1,8 @@
 import customtkinter as ctk
+from typing import Callable, Dict
 
 class MessageInput(ctk.CTkFrame):
-    def __init__(self, master, colors, send_command, *args, **kwargs):
+    def __init__(self, master: ctk.CTk, colors: Dict[str, str], send_command: Callable[[], None], *args, **kwargs) -> None:
         super().__init__(master, *args, **kwargs)
         self.colors = colors
         self.configure(fg_color=self.colors["tertiary"], corner_radius=10)
@@ -9,21 +10,37 @@ class MessageInput(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
 
-        self.message_entry = ctk.CTkEntry(self, placeholder_text="Write a message...", fg_color=self.colors["primary"], text_color=self.colors["text"], corner_radius=5)
+        self.message_entry = ctk.CTkEntry(
+            self,
+            placeholder_text="Write a message...",
+            fg_color=self.colors["primary"],
+            text_color=self.colors["text"],
+            corner_radius=5,
+        )
         self.message_entry.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
 
-        self.send_button = ctk.CTkButton(self, text="Send", command=send_command, fg_color=self.colors["button"], text_color=self.colors["button_text"], corner_radius=5)
+        self.send_button = ctk.CTkButton(
+            self,
+            text="Send",
+            command=send_command,
+            fg_color=self.colors["button"],
+            text_color=self.colors["button_text"],
+            corner_radius=5,
+        )
         self.send_button.grid(row=0, column=1, padx=5, pady=5)
 
-    def get_message(self):
-        return self.message_entry.get()
+    def get_message(self) -> str:
+        return str(self.message_entry.get())
 
-    def clear_message(self):
+    def clear_message(self) -> None:
         self.message_entry.delete(0, ctk.END)
 
-    def update_colors(self, colors):
+    def update_colors(self, colors: Dict[str, str]) -> None:
         self.colors = colors
         self.configure(fg_color=self.colors["tertiary"])
-        self.message_entry.configure(fg_color=self.colors["primary"], text_color=self.colors["text"])
-        self.send_button.configure(fg_color=self.colors["button"], text_color=self.colors["button_text"])
-
+        self.message_entry.configure(
+            fg_color=self.colors["primary"], text_color=self.colors["text"]
+        )
+        self.send_button.configure(
+            fg_color=self.colors["button"], text_color=self.colors["button_text"]
+        )

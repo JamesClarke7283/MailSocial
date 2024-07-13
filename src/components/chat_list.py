@@ -1,10 +1,13 @@
-import customtkinter as ctk
 import tkinter as tk
-from PIL import Image, ImageDraw, ImageTk, ImageFont
-from src.core.models.chat import Chat
-from src.core.models.message import Message, MessageStatus
-from src.core.models.member import Member
 from datetime import datetime
+
+import customtkinter as ctk
+from PIL import Image, ImageDraw, ImageFont, ImageTk
+
+from src.core.models.chat import Chat
+from src.core.models.member import Member
+from src.core.models.message import Message, MessageStatus
+
 
 class ChatItem(ctk.CTkButton):
     def __init__(self, master, chat, font_size, app_instance, *args, **kwargs):
@@ -19,7 +22,7 @@ class ChatItem(ctk.CTkButton):
 
         # Create circular image
         size = int(self.font_size * 2.5)
-        image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
         draw.ellipse((0, 0, size, size), fill=self.colors["button"])
 
@@ -29,7 +32,13 @@ class ChatItem(ctk.CTkButton):
         except IOError:
             font = ImageFont.load_default()
 
-        draw.text((size/2, size/2), chat.title[0].upper(), fill=self.colors["button_text"], anchor='mm', font=font)
+        draw.text(
+            (size / 2, size / 2),
+            chat.title[0].upper(),
+            fill=self.colors["button_text"],
+            anchor="mm",
+            font=font,
+        )
         photo = ImageTk.PhotoImage(image)
 
         self.image_label = tk.Label(self, image=photo, bg=self.colors["secondary"])
@@ -39,10 +48,20 @@ class ChatItem(ctk.CTkButton):
         self.text_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.text_frame.grid(row=0, column=1, sticky="nsew", padx=(0, 10), pady=10)
 
-        self.name_label = ctk.CTkLabel(self.text_frame, text=chat.title, anchor="w", font=("Arial", int(self.font_size * 1.2), "bold"))
+        self.name_label = ctk.CTkLabel(
+            self.text_frame,
+            text=chat.title,
+            anchor="w",
+            font=("Arial", int(self.font_size * 1.2), "bold"),
+        )
         self.name_label.grid(row=0, column=0, sticky="w")
 
-        self.message_label = ctk.CTkLabel(self.text_frame, text=self.truncate_message(chat.messages[-1].content), anchor="w", font=("Arial", self.font_size))
+        self.message_label = ctk.CTkLabel(
+            self.text_frame,
+            text=self.truncate_message(chat.messages[-1].content),
+            anchor="w",
+            font=("Arial", self.font_size),
+        )
         self.message_label.grid(row=1, column=0, sticky="w")
 
         self.configure(command=self.on_click)
@@ -54,21 +73,30 @@ class ChatItem(ctk.CTkButton):
     def update_font_size(self, new_size):
         self.font_size = new_size
         self.name_label.configure(font=("Arial", int(self.font_size * 1.2), "bold"))
-        self.message_label.configure(font=("Arial", self.font_size), text=self.truncate_message(self.chat.messages[-1].content))
+        self.message_label.configure(
+            font=("Arial", self.font_size),
+            text=self.truncate_message(self.chat.messages[-1].content),
+        )
 
     def update_colors(self, colors):
         self.colors = colors
         self.configure(fg_color=colors["secondary"])
         self.image_label.configure(bg=colors["secondary"])
         size = int(self.font_size * 2.5)
-        image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
         draw.ellipse((0, 0, size, size), fill=colors["button"])
         try:
             font = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
         except IOError:
             font = ImageFont.load_default()
-        draw.text((size/2, size/2), self.chat.title[0].upper(), fill=colors["button_text"], anchor='mm', font=font)
+        draw.text(
+            (size / 2, size / 2),
+            self.chat.title[0].upper(),
+            fill=colors["button_text"],
+            anchor="mm",
+            font=font,
+        )
         photo = ImageTk.PhotoImage(image)
         self.image_label.configure(image=photo)
         self.image_label.image = photo
@@ -78,6 +106,7 @@ class ChatItem(ctk.CTkButton):
     def on_click(self):
         self.app_instance.display_chat(self.chat)
 
+
 class ChatList(ctk.CTkScrollableFrame):
     def __init__(self, master, colors, font_size, app_instance, *args, **kwargs):
         super().__init__(master, fg_color=colors["primary"], *args, **kwargs)
@@ -86,7 +115,14 @@ class ChatList(ctk.CTkScrollableFrame):
         self.chat_items = []
         self.app_instance = app_instance
 
-        self.compose_button = ctk.CTkButton(self, text="📝 Compose", command=self.app_instance.open_compose_window, fg_color=self.colors["button"], text_color=self.colors["button_text"], corner_radius=5)
+        self.compose_button = ctk.CTkButton(
+            self,
+            text="📝 Compose",
+            command=self.app_instance.open_compose_window,
+            fg_color=self.colors["button"],
+            text_color=self.colors["button_text"],
+            corner_radius=5,
+        )
         self.compose_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         sample_chats = [
@@ -94,42 +130,110 @@ class ChatList(ctk.CTkScrollableFrame):
                 "General",
                 [Member("general@example.com", "123", True, "General")],
                 [
-                    Message([], Member("general@example.com", "123", True, "General"), "Welcome to the general chat!", datetime.now(), MessageStatus.DRAFT),
-                    Message([], Member("johndoe@example.com", "456", True, "John Doe"), "Got it, thanks!", datetime.now(), MessageStatus.SENT),
-                    Message([], Member("me@example.com", "789", True, "You"), "Hello everyone!", datetime.now(), MessageStatus.READ),
-                    Message([], Member("unknown@example.com", "000", True, None), "Who is this?", datetime.now(), MessageStatus.LOCAL_ONLY),
+                    Message(
+                        [],
+                        Member("general@example.com", "123", True, "General"),
+                        "Welcome to the general chat!",
+                        datetime.now(),
+                        MessageStatus.DRAFT,
+                    ),
+                    Message(
+                        [],
+                        Member("johndoe@example.com", "456", True, "John Doe"),
+                        "Got it, thanks!",
+                        datetime.now(),
+                        MessageStatus.SENT,
+                    ),
+                    Message(
+                        [],
+                        Member("me@example.com", "789", True, "You"),
+                        "Hello everyone!",
+                        datetime.now(),
+                        MessageStatus.READ,
+                    ),
+                    Message(
+                        [],
+                        Member("unknown@example.com", "000", True, None),
+                        "Who is this?",
+                        datetime.now(),
+                        MessageStatus.LOCAL_ONLY,
+                    ),
                 ],
             ),
             Chat(
                 "Work",
                 [Member("work@example.com", "123", True, "Work")],
                 [
-                    Message([], Member("work@example.com", "123", True, "Work"), "Don't forget the meeting at 2 PM", datetime.now(), MessageStatus.DRAFT),
-                    Message([], Member("johndoe@example.com", "456", True, "John Doe"), "Got it, thanks!", datetime.now(), MessageStatus.SENT),
-                    Message([], Member("me@example.com", "789", True, "You"), "I'll be there!", datetime.now(), MessageStatus.READ),
+                    Message(
+                        [],
+                        Member("work@example.com", "123", True, "Work"),
+                        "Don't forget the meeting at 2 PM",
+                        datetime.now(),
+                        MessageStatus.DRAFT,
+                    ),
+                    Message(
+                        [],
+                        Member("johndoe@example.com", "456", True, "John Doe"),
+                        "Got it, thanks!",
+                        datetime.now(),
+                        MessageStatus.SENT,
+                    ),
+                    Message(
+                        [],
+                        Member("me@example.com", "789", True, "You"),
+                        "I'll be there!",
+                        datetime.now(),
+                        MessageStatus.READ,
+                    ),
                 ],
             ),
             Chat(
                 "Family",
                 [Member("family@example.com", "123", True, "Family")],
                 [
-                    Message([], Member("mom@example.com", "123", True, "Mom"), "Are you coming for dinner?", datetime.now(), MessageStatus.DRAFT),
-                    Message([], Member("me@example.com", "789", True, "You"), "Yes, I'll be there at 7 PM.", datetime.now(), MessageStatus.SENT),
+                    Message(
+                        [],
+                        Member("mom@example.com", "123", True, "Mom"),
+                        "Are you coming for dinner?",
+                        datetime.now(),
+                        MessageStatus.DRAFT,
+                    ),
+                    Message(
+                        [],
+                        Member("me@example.com", "789", True, "You"),
+                        "Yes, I'll be there at 7 PM.",
+                        datetime.now(),
+                        MessageStatus.SENT,
+                    ),
                 ],
             ),
             Chat(
                 "Friends",
                 [Member("friends@example.com", "123", True, "Friends")],
                 [
-                    Message([], Member("friend@example.com", "123", True, "Friend"), "Hey, want to grab coffee later?", datetime.now(), MessageStatus.DRAFT),
-                    Message([], Member("me@example.com", "789", True, "You"), "Sure, see you at 5!", datetime.now(), MessageStatus.SENT),
+                    Message(
+                        [],
+                        Member("friend@example.com", "123", True, "Friend"),
+                        "Hey, want to grab coffee later?",
+                        datetime.now(),
+                        MessageStatus.DRAFT,
+                    ),
+                    Message(
+                        [],
+                        Member("me@example.com", "789", True, "You"),
+                        "Sure, see you at 5!",
+                        datetime.now(),
+                        MessageStatus.SENT,
+                    ),
                 ],
-            )
+            ),
         ]
 
         for chat in sample_chats:
             chat_item = ChatItem(self, chat, self.font_size, self.app_instance)
-            chat_item.grid(row=len(self.chat_items)+1, column=0, sticky="ew", padx=5, pady=2)
+            chat_item.grid(
+                row=len(self.chat_items) + 1, column=0, sticky="ew", padx=5, pady=2
+            )
             self.chat_items.append(chat_item)
 
     def update_font_size(self, new_size):
