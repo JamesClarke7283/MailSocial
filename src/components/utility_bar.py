@@ -6,7 +6,14 @@ from src.components.about.window import AboutWindow
 
 
 class UtilityBar(ctk.CTkFrame):
-    def __init__(self, master: Any, colors: Dict[str, str], settings_command: Callable[[], None], *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        master: Any,
+        colors: Dict[str, str],
+        settings_command: Callable[[], None],
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(master, fg_color="transparent", *args, **kwargs)
         self.colors = colors
 

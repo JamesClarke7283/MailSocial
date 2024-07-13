@@ -1,8 +1,16 @@
 import customtkinter as ctk
 from typing import Callable, Dict, Any
 
+
 class MessageInput(ctk.CTkFrame):
-    def __init__(self, master: Any, colors: Dict[str, str], send_command: Callable[[], None], *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        master: Any,
+        colors: Dict[str, str],
+        send_command: Callable[[], None],
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(master, *args, **kwargs)
         self.colors = colors
         self.configure(fg_color=self.colors["tertiary"], corner_radius=10)

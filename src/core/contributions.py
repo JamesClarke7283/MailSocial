@@ -3,12 +3,12 @@ import argparse
 import json
 import os
 import re
-import subprocess
 import tempfile
 import uuid
 from datetime import datetime
 from importlib import metadata
 from typing import Any, Dict, List, Optional, Union
+import shlex
 
 import gnupg
 from appdirs import user_cache_dir
@@ -45,7 +45,9 @@ def get_commit_info(commit: Any) -> Dict[str, Union[str, int, bool, float]]:
 def get_repo_url() -> Optional[str]:
     """Get the repository URL from the project metadata."""
     try:
-        project_urls: List[str] = metadata.metadata("mailsocial").get_all("Project-URL", [])
+        project_urls: List[str] = metadata.metadata("mailsocial").get_all(
+            "Project-URL", []
+        )
         for url_entry in project_urls:
             key, url = url_entry.split(",", 1)
             if key.strip().lower() == "source":
@@ -78,19 +80,16 @@ def clone_or_pull_repo(repo_url: str, repo_path: str) -> Repo:
     return Repo(repo_path)
 
 
-def extract_signature_details(commit_sha: str, repo_path: str) -> Optional[Dict[str, Any]]:
+def extract_signature_details(
+    commit_sha: str, repo_path: str
+) -> Optional[Dict[str, Any]]:
     """Extract the PGP signature details of a commit and convert to JSON."""
     try:
-        # Run the git log command with show-signature option
-        command = ["git", "log", "--show-signature", "-1", commit_sha]
-        result = subprocess.run(command, cwd=repo_path, capture_output=True, text=True)
+        # Use GitPython instead of subprocess
+        repo = Repo(repo_path)
+        commit = repo.commit(commit_sha)
+        output = repo.git.show(commit, show_signature=True)
 
-        if result.returncode != 0:
-            logger.error(f"Git command failed with error: {result.stderr}")
-            return None
-
-        # Parse the output to extract signature details
-        output = result.stdout
         logger.debug(f"Git command output:\n{output}")
 
         commit_info: Dict[str, Any] = {}
@@ -211,7 +210,9 @@ def analyze_commits(repo: Repo, repo_path: str) -> Dict[str, Any]:
                             parts = line.split()
                             if len(parts) >= 2 and parts[0].isdigit():
                                 loc = int(parts[0])
-                                identities[author_email]["contribution_percentage"] += loc
+                                identities[author_email][
+                                    "contribution_percentage"
+                                ] += loc
                                 total_loc += loc
                 else:
                     # Handle the initial commit (no parents)
@@ -223,7 +224,9 @@ def analyze_commits(repo: Repo, repo_path: str) -> Dict[str, Any]:
                             parts = line.split()
                             if len(parts) >= 2 and parts[0].isdigit():
                                 loc = int(parts[0])
-                                identities[author_email]["contribution_percentage"] += loc
+                                identities[author_email][
+                                    "contribution_percentage"
+                                ] += loc
                                 total_loc += loc
         else:
             outstanding_commits[commit.hexsha] = commit_info

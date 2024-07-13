@@ -4,6 +4,7 @@ from typing import List, Dict, Any
 
 from src.core.contributions import get_final_contributors_list
 
+
 def get_contributors() -> List[Dict[str, Any]]:
     contributions_file = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),

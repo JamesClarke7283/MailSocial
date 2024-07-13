@@ -3,6 +3,7 @@ import customtkinter as ctk
 from PIL import Image, ImageOps
 from typing import Any
 
+
 def setup_info_tab(self: Any) -> None:
     info_frame = ctk.CTkScrollableFrame(self.info_tab)
     info_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)

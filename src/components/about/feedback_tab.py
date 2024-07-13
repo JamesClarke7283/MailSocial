@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from typing import Any
 
+
 def setup_feedback_tab(self: Any) -> None:
     feedback_frame = ctk.CTkFrame(self.feedback_tab)
     feedback_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)

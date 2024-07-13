@@ -6,6 +6,7 @@ from .feedback_tab import setup_feedback_tab
 from .info_tab import setup_info_tab
 from .licenses_tab import setup_licenses_tab, update_license_text
 
+
 class AboutWindow(ctk.CTkToplevel):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)

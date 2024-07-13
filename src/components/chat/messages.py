@@ -3,8 +3,11 @@ from datetime import datetime
 import customtkinter as ctk
 from typing import List, Dict, Any
 
+
 class ChatMessages(ctk.CTkFrame):
-    def __init__(self, master: Any, colors: Dict[str, str], *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self, master: Any, colors: Dict[str, str], *args: Any, **kwargs: Any
+    ) -> None:
         super().__init__(master, *args, **kwargs)
         self.colors = colors
         self.configure(fg_color=self.colors["secondary"], corner_radius=10)

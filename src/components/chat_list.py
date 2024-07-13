@@ -9,8 +9,17 @@ from src.core.models.chat import Chat
 from src.core.models.member import Member
 from src.core.models.message import Message, MessageStatus
 
+
 class ChatItem(ctk.CTkButton):
-    def __init__(self, master: Any, chat: Chat, font_size: tk.IntVar, app_instance: Any, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        master: Any,
+        chat: Chat,
+        font_size: tk.IntVar,
+        app_instance: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(master, fg_color=master.colors["secondary"], *args, **kwargs)
         self.chat = chat
         self.font_size = font_size.get()
@@ -28,7 +37,9 @@ class ChatItem(ctk.CTkButton):
 
         # Use a proper PIL ImageFont
         try:
-            font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont] = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
+            font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont] = (
+                ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
+            )
         except IOError:
             font = ImageFont.load_default()
 
@@ -88,7 +99,9 @@ class ChatItem(ctk.CTkButton):
         draw = ImageDraw.Draw(image)
         draw.ellipse((0, 0, size, size), fill=colors["button"])
         try:
-            font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont] = ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
+            font: Union[ImageFont.FreeTypeFont, ImageFont.ImageFont] = (
+                ImageFont.truetype("arial.ttf", int(self.font_size * 1.2))
+            )
         except IOError:
             font = ImageFont.load_default()
         draw.text(
@@ -109,7 +122,15 @@ class ChatItem(ctk.CTkButton):
 
 
 class ChatList(ctk.CTkScrollableFrame):
-    def __init__(self, master: Any, colors: Dict[str, str], font_size: tk.IntVar, app_instance: Any, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        master: Any,
+        colors: Dict[str, str],
+        font_size: tk.IntVar,
+        app_instance: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(master, fg_color=colors["primary"], *args, **kwargs)
         self.colors = colors
         self.font_size = font_size

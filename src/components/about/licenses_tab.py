@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from typing import Any
 
+
 def setup_licenses_tab(self: Any) -> None:
     licenses_frame = ctk.CTkFrame(self.licenses_tab)
     licenses_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -22,6 +23,7 @@ def setup_licenses_tab(self: Any) -> None:
     self.license_text.grid(row=1, column=0, sticky="nsew", padx=20, pady=(0, 20))
 
     self.update_license_text()
+
 
 def update_license_text(self: Any, *args: Any) -> None:
     license_type = self.license_type_var.get()

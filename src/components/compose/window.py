@@ -4,6 +4,7 @@ import tkinter as tk
 import tkinter.messagebox as messagebox
 import customtkinter as ctk
 
+
 class ComposeWindow(ctk.CTkToplevel):
     def __init__(self, parent: ctk.CTk) -> None:
         super().__init__(parent)
@@ -166,4 +167,3 @@ class ComposeWindow(ctk.CTkToplevel):
     def save_message(self) -> None:
         # Implement save message functionality here
         pass
-
